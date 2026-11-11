@@ -1,0 +1,36 @@
+name: Verification de mon site
+
+on:
+push:
+branches:
+- main
+
+jobs:
+  verification:
+  name: Vérifier le site
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Recuperer les fichiers du projet
+    uses: actions/checkout@v4
+
+    - name: Verifier la presence de la page
+    run: |
+    if [ -f index.html ]; then
+    echo "SUCCESS : index.html existe !"
+    else
+    echo "ERROR : index.html est introuvable."
+    exit 1
+    fi
+
+    - name: Verifier le contenu HTML
+    run: |
+    if grep -q "<h1>" index.html; then
+    echo "SUCCESS : un titre principal est present."
+    else
+    echo "ERROR : aucun titre principal detecte."
+    exit 1
+    fi
+
+    - name: Verification terminee
+    run: echo "Toutes les verifications sont reussies !"
