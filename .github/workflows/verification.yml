@@ -22,3 +22,6 @@ jobs:
 
       - name: Verification terminee
         run: echo "Toutes les verifications sont reussies !"
+
+      - name: Analyser la qualite du HTML
+        run: npx --yes htmlhint index.html
