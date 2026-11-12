@@ -1,18 +1,22 @@
-name: Verification de mon site
+
+name: Pipeline CI-CD de mon site
 
 'on':
   push:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   verification:
-    name: Verifier le site
+    name: Verification du site
     runs-on: ubuntu-latest
 
     steps:
-      - name: Recuperer les fichiers du projet
-        uses: actions/checkout@v4
+      - name: Recuperer les fichiers
+        uses: actions/checkout@v6
 
       - name: Verifier la presence de la page
         run: test -f index.html
@@ -20,8 +24,35 @@ jobs:
       - name: Verifier le titre principal
         run: grep -q "<h1>" index.html
 
-      - name: Verification terminee
-        run: echo "Toutes les verifications sont reussies !"
-
       - name: Analyser la qualite du HTML
         run: npx --yes htmlhint index.html
+
+  deploy:
+    name: Deploiement du site
+    needs: verification
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Recuperer les fichiers
+        uses: actions/checkout@v6
+
+      - name: Configurer GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Preparer les fichiers du site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: '.'
+
+      - name: Publier le site
+        id: deployment
+        uses: actions/deploy-pages@v4
